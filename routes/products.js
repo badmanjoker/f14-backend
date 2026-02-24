@@ -88,7 +88,18 @@ router.post('/', protect, async (req, res) => {
         res.status(201).json(newProduct);
     } catch (err) {
         console.error("❌ Product Create Error:", err);
-        res.status(500).json({ error: `Failed to create product: ${err.message}` });
+
+        // Handle Mongoose Validation Errors Specifically
+        if (err.name === 'ValidationError') {
+            const messages = Object.values(err.errors).map(val => val.message);
+            return res.status(400).json({ error: `Validation Error: ${messages.join(', ')}` });
+        }
+
+        if (err.code === 11000) {
+            return res.status(400).json({ error: 'A product with this name already exists (Slug collision).' });
+        }
+
+        res.status(500).json({ error: `Server Error: ${err.message}` });
     }
 });
 
@@ -109,8 +120,8 @@ router.put('/:id', protect, async (req, res) => {
         if (sizeGuide !== undefined) product.sizeGuide = sizeGuide;
         if (description) product.description = description;
         if (variants) {
-            product.variants = variants;
-            product.stock = variants.reduce((acc, v) => acc + (parseInt(v.stock) || 0), 0);
+            product.variants = Array.isArray(variants) ? variants : [];
+            product.stock = product.variants.reduce((acc, v) => acc + (parseInt(v?.stock) || 0), 0);
         }
         if (badge !== undefined) product.badge = badge;
         if (badgeColor !== undefined) product.badgeColor = badgeColor;
@@ -119,7 +130,11 @@ router.put('/:id', protect, async (req, res) => {
         res.json(product);
     } catch (err) {
         console.error("❌ Product Update Error:", err);
-        res.status(500).json({ error: `Failed to update product: ${err.message}` });
+        if (err.name === 'ValidationError') {
+            const messages = Object.values(err.errors).map(val => val.message);
+            return res.status(400).json({ error: `Validation Error: ${messages.join(', ')}` });
+        }
+        res.status(500).json({ error: `Server Error: ${err.message}` });
     }
 });
 
