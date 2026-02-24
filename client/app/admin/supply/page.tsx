@@ -50,7 +50,7 @@ export default function SupplyPage() {
         { size: 'XL', stock: 0, color: 'Black' },
     ]);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://f14-backend.onrender.com';
 
     const formatImgUrl = (path: string) => {
         if (!path) return '/cbr.png';
@@ -62,8 +62,7 @@ export default function SupplyPage() {
     const fetchProducts = async () => {
         try {
             const res = await fetch(`${API_URL}/api/products`);
-            const data = await res.json();
-            setProducts(data);
+            setProducts(Array.isArray(data) ? data : []);
             setLoading(false);
         } catch (err) {
             console.error('Failed to fetch products:', err);
@@ -280,7 +279,7 @@ export default function SupplyPage() {
                                             <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider line-clamp-2 mb-4">{product.description}</p>
                                         </div>
                                         <div className="flex gap-2">
-                                            {product.variants.map(v => (
+                                            {product.variants && product.variants.map(v => (
                                                 <div key={v.size} className="text-[9px] font-mono bg-zinc-900 border border-zinc-800 px-2 py-1 flex flex-col items-center">
                                                     <span className="text-zinc-500">{v.size}</span>
                                                     <span className={v.stock > 0 ? 'text-white' : 'text-red-500'}>{v.stock}</span>

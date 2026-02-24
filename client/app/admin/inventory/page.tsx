@@ -7,7 +7,7 @@ import { Plus, Minus, AlertTriangle, CheckCircle, Package } from 'lucide-react';
 
 export default function InventoryPage() {
     const { inventory, updateStock } = useAdmin();
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://f14-backend.onrender.com';
 
     const formatImgUrl = (path: string) => {
         if (!path) return '/cbr.png';
@@ -30,7 +30,7 @@ export default function InventoryPage() {
                     <div>
                         <div className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">Total Items</div>
                         <div className="text-2xl font-black font-mono text-white">
-                            {inventory.reduce((acc, p) => acc + p.variants.reduce((vAcc, v) => vAcc + v.stock, 0), 0)}
+                            {inventory.reduce((acc, p) => acc + (p.variants?.reduce((vAcc, v) => vAcc + (v.stock || 0), 0) || 0), 0)}
                         </div>
                     </div>
                     <Package className="text-zinc-700" size={24} />
@@ -38,9 +38,7 @@ export default function InventoryPage() {
                 <div className="bg-zinc-950/50 border border-zinc-900 p-4 rounded-sm flex items-center justify-between">
                     <div>
                         <div className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">Low Stock Variants</div>
-                        <div className="text-2xl font-black font-mono text-orange-500">
-                            {inventory.reduce((acc, p) => acc + p.variants.filter(v => v.stock < 10).length, 0)}
-                        </div>
+                        {inventory.reduce((acc, p) => acc + (p.variants?.filter(v => (v.stock || 0) < 10).length || 0), 0)}
                     </div>
                     <AlertTriangle className="text-orange-900" size={24} />
                 </div>
@@ -70,7 +68,7 @@ export default function InventoryPage() {
 
                         {/* Variants Grid */}
                         <div className="divide-y divide-zinc-900">
-                            {product.variants.map((variant, idx) => (
+                            {product.variants && product.variants.map((variant, idx) => (
                                 <div key={idx} className="flex items-center justify-between p-4 hover:bg-zinc-900/20 transition-colors">
 
                                     <div className="flex items-center gap-6">
@@ -84,9 +82,9 @@ export default function InventoryPage() {
                                         </div>
                                         <div className="w-32">
                                             <div className="text-[10px] text-zinc-500 uppercase font-bold mb-1">Status</div>
-                                            {variant.stock === 0 ? (
+                                            {(variant.stock || 0) === 0 ? (
                                                 <span className="bg-red-950 text-red-500 text-[9px] px-2 py-1 rounded-sm uppercase font-bold">Out of Stock</span>
-                                            ) : variant.stock < 10 ? (
+                                            ) : (variant.stock || 0) < 10 ? (
                                                 <span className="bg-orange-950 text-orange-500 text-[9px] px-2 py-1 rounded-sm uppercase font-bold animate-pulse">Low Stock</span>
                                             ) : (
                                                 <span className="bg-emerald-950 text-emerald-500 text-[9px] px-2 py-1 rounded-sm uppercase font-bold">In Stock</span>
@@ -98,19 +96,19 @@ export default function InventoryPage() {
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center border border-zinc-800 rounded-sm bg-black">
                                             <button
-                                                onClick={() => updateStock(product._id, idx, Math.max(0, variant.stock - 1))}
+                                                onClick={() => updateStock(product._id, idx, Math.max(0, (variant.stock || 0) - 1))}
                                                 className="p-2 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all cursor-pointer hover:scale-110 active:scale-90"
                                             >
                                                 <Minus size={14} />
                                             </button>
                                             <input
                                                 type="number"
-                                                value={variant.stock}
+                                                value={variant.stock || 0}
                                                 onChange={(e) => updateStock(product._id, idx, Math.max(0, parseInt(e.target.value) || 0))}
                                                 className="w-14 bg-transparent text-center text-sm font-mono font-bold text-white focus:outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             />
                                             <button
-                                                onClick={() => updateStock(product._id, idx, variant.stock + 1)}
+                                                onClick={() => updateStock(product._id, idx, (variant.stock || 0) + 1)}
                                                 className="p-2 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all cursor-pointer hover:scale-110 active:scale-90"
                                             >
                                                 <Plus size={14} />
