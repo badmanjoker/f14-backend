@@ -4,6 +4,10 @@ _legacy_site/
 server/
 .DS_Store
 *.local
+.next/
+dist/
+build/
+.cache/
 check_db_content.js
 check_ports.js
 test_products_fetch.js
