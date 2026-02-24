@@ -1,5 +1,10 @@
 .env
 node_modules/
 _legacy_site/
+server/
 .DS_Store
 *.local
+check_db_content.js
+check_ports.js
+test_products_fetch.js
+test_settings_fetch.js
