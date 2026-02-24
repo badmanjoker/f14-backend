@@ -10,9 +10,9 @@ export default function OrdersPage() {
     const [filter, setFilter] = useState<'all' | 'pending' | 'shipped'>('all');
 
     // Filter Logic
-    const filteredOrders = orders.filter(o =>
-        filter === 'all' ? true : o.status === filter
-    );
+    const filteredOrders = Array.isArray(orders) ? orders.filter(o =>
+        filter === 'all' ? true : o?.status === filter
+    ) : [];
 
     return (
         <div className="max-w-5xl mx-auto space-y-8 font-sans">
@@ -38,7 +38,7 @@ export default function OrdersPage() {
 
             <div className="grid grid-cols-1 gap-4">
                 <AnimatePresence>
-                    {filteredOrders.map((order) => (
+                    {filteredOrders.filter(o => o && o._id).map((order) => (
                         <OrderCard key={order._id} order={order} onShip={() => markAsShipped(order._id)} />
                     ))}
                 </AnimatePresence>
@@ -80,7 +80,7 @@ function OrderCard({ order, onShip }: { order: any, onShip: () => void }) {
                 <div>
                     <div className="flex items-center gap-3 mb-1">
                         <span className="text-white font-bold text-sm tracking-tight">{order.customer?.name || 'Guest Customer'}</span>
-                        <span className="text-zinc-600 text-[10px] bg-zinc-900 px-2 py-0.5 rounded-full font-mono">#{order._id.substring(0, 6).toUpperCase()}</span>
+                        <span className="text-zinc-600 text-[10px] bg-zinc-900 px-2 py-0.5 rounded-full font-mono">#{order._id?.substring(0, 6).toUpperCase() || 'UNKNOWN'}</span>
                     </div>
                     <div className="text-zinc-400 text-xs flex items-center gap-2">
                         <span>{order.items?.length || 1} Item(s)</span>
@@ -98,7 +98,7 @@ function OrderCard({ order, onShip }: { order: any, onShip: () => void }) {
                     <div className="bg-[#0a0a0a] p-3 rounded-lg border border-zinc-900/50 flex items-center gap-4">
                         <div className="w-8 h-8 bg-zinc-800 rounded-md flex items-center justify-center text-[10px] text-zinc-500 overflow-hidden">
                             {/* Placeholder for item image if we have one, otherwise just first letter */}
-                            {order.items[0].name.charAt(0)}
+                            {order.items[0]?.name?.charAt(0) || '?'}
                         </div>
                         <div>
                             <div className="text-xs text-white font-medium">{order.items[0].name}</div>

@@ -14,19 +14,19 @@ export default function LowStockModal({ isOpen, onClose }: LowStockModalProps) {
     const { inventory, updateStock } = useAdmin();
     const [restockingIds, setRestockingIds] = useState<string[]>([]);
 
-    const lowStockItems = inventory.flatMap(product =>
-        product.variants
-            .filter(v => v.stock <= 5)
+    const lowStockItems = Array.isArray(inventory) ? inventory.flatMap(product =>
+        (product.variants || [])
+            .filter(v => (v.stock || 0) <= 5)
             .map(v => ({
                 id: product._id,
                 name: product.name,
                 image: product.image, // Ensure this exists in your data
                 size: v.size,
                 color: v.color,
-                stock: v.stock,
-                variantIndex: product.variants.indexOf(v) // Need index for update
+                stock: v.stock || 0,
+                variantIndex: (product.variants || []).indexOf(v) // Need index for update
             }))
-    );
+    ) : [];
 
     const handleQuickRestock = async (productId: string, variantIndex: number, currentStock: number) => {
         const key = `${productId}-${variantIndex}`;

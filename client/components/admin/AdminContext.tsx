@@ -58,11 +58,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
     // Derived Stats
     const stats = {
-        revenue: orders.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.totalAmount : 0), 0),
-        orders: orders.length,
-        aov: orders.length > 0 ? Math.round(orders.reduce((acc, o) => acc + o.totalAmount, 0) / orders.length) : 0,
+        revenue: Array.isArray(orders) ? orders.reduce((acc, o) => acc + (o?.status !== 'cancelled' ? (o?.totalAmount || 0) : 0), 0) : 0,
+        orders: Array.isArray(orders) ? orders.length : 0,
+        aov: (Array.isArray(orders) && orders.length > 0) ? Math.round(orders.reduce((acc, o) => acc + (o?.totalAmount || 0), 0) / orders.length) : 0,
         returnRate: 0,
-        pendingOrders: orders.filter(o => o.status === 'pending').length
+        pendingOrders: Array.isArray(orders) ? orders.filter(o => o?.status === 'pending').length : 0
     };
 
 
@@ -135,12 +135,12 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
             if (ordersRes.ok) {
                 const ordersData = await ordersRes.json();
-                setOrders(ordersData);
+                setOrders(Array.isArray(ordersData) ? ordersData : []);
             }
 
             if (productsRes.ok) {
                 const productsData = await productsRes.json();
-                setInventory(productsData);
+                setInventory(Array.isArray(productsData) ? productsData : []);
             }
 
             setReturns([]);

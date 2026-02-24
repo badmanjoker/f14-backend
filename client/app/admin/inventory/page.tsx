@@ -30,15 +30,16 @@ export default function InventoryPage() {
                     <div>
                         <div className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">Total Items</div>
                         <div className="text-2xl font-black font-mono text-white">
-                            {inventory.reduce((acc, p) => acc + (p.variants?.reduce((vAcc, v) => vAcc + (v.stock || 0), 0) || 0), 0)}
+                            {Array.isArray(inventory) ? inventory.reduce((acc, p) => acc + ((p?.variants || []).reduce((vAcc, v) => vAcc + (v?.stock || 0), 0) || 0), 0) : 0}
                         </div>
                     </div>
                     <Package className="text-zinc-700" size={24} />
                 </div>
                 <div className="bg-zinc-950/50 border border-zinc-900 p-4 rounded-sm flex items-center justify-between">
                     <div>
-                        <div className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">Low Stock Variants</div>
-                        {inventory.reduce((acc, p) => acc + (p.variants?.filter(v => (v.stock || 0) < 10).length || 0), 0)}
+                        <div className="text-2xl font-black font-mono text-white">
+                            {Array.isArray(inventory) ? inventory.reduce((acc, p) => acc + ((p?.variants || []).filter(v => (v?.stock || 0) < 10).length || 0), 0) : 0}
+                        </div>
                     </div>
                     <AlertTriangle className="text-orange-900" size={24} />
                 </div>
@@ -53,7 +54,7 @@ export default function InventoryPage() {
 
             {/* Inventory Table */}
             <div className="space-y-6 pb-40">
-                {inventory.map((product) => (
+                {Array.isArray(inventory) && inventory.filter(p => p).map((product) => (
                     <div key={product._id} className="bg-zinc-950/30 border border-zinc-900 rounded-sm overflow-hidden">
                         {/* Product Header */}
                         <div className="bg-zinc-900/50 p-4 flex items-center gap-4">
@@ -68,7 +69,7 @@ export default function InventoryPage() {
 
                         {/* Variants Grid */}
                         <div className="divide-y divide-zinc-900">
-                            {product.variants && product.variants.map((variant, idx) => (
+                            {Array.isArray(product.variants) && product.variants.map((variant, idx) => (
                                 <div key={idx} className="flex items-center justify-between p-4 hover:bg-zinc-900/20 transition-colors">
 
                                     <div className="flex items-center gap-6">

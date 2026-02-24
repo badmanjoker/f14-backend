@@ -22,26 +22,26 @@ export default function ReturnsPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="p-6 bg-zinc-950/50 border border-zinc-900 rounded-sm">
                     <div className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">Pending Requests</div>
-                    <div className="text-3xl font-black text-white font-mono mt-2">{returns.filter(r => r.status === 'pending').length}</div>
+                    <div className="text-3xl font-black text-white font-mono mt-2">{Array.isArray(returns) ? returns.filter(r => r?.status === 'pending').length : 0}</div>
                 </div>
                 <div className="p-6 bg-zinc-950/50 border border-zinc-900 rounded-sm">
                     <div className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">Approved (This Mo)</div>
-                    <div className="text-3xl font-black text-emerald-500 font-mono mt-2">{returns.filter(r => r.status === 'approved').length}</div>
+                    <div className="text-3xl font-black text-emerald-500 font-mono mt-2">{Array.isArray(returns) ? returns.filter(r => r?.status === 'approved').length : 0}</div>
                 </div>
                 <div className="p-6 bg-zinc-950/50 border border-zinc-900 rounded-sm">
                     <div className="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">Refund Value</div>
-                    <div className="text-3xl font-black text-white font-mono mt-2">£{returns.filter(r => r.status === 'approved' || r.status === 'refunded').reduce((acc, r) => acc + r.amount, 0)}</div>
+                    <div className="text-3xl font-black text-white font-mono mt-2">£{Array.isArray(returns) ? returns.filter(r => r?.status === 'approved' || r?.status === 'refunded').reduce((acc, r) => acc + (r?.amount || 0), 0) : 0}</div>
                 </div>
             </div>
 
             {/* Main Returns List */}
             <div className="space-y-4">
-                {returns.length === 0 ? (
+                {(!Array.isArray(returns) || returns.length === 0) ? (
                     <div className="text-center py-20 text-zinc-700 border border-zinc-900/50 border-dashed rounded-sm text-xs uppercase tracking-widest">
                         No active return requests
                     </div>
                 ) : (
-                    returns.map((request) => (
+                    returns.filter(r => r && r.id).map((request) => (
                         <div key={request.id} className="bg-zinc-950/40 border border-zinc-900 p-5 rounded-sm flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-zinc-700 transition-colors">
 
                             {/* Info */}

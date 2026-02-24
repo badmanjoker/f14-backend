@@ -37,7 +37,7 @@ function DashboardContent() {
 
     // 1. Chart Data Aggregation
     const chartData = (() => {
-        if (!orders.length) {
+        if (!Array.isArray(orders) || !orders.length) {
             // Return empty placeholder data if no orders
             return Array.from({ length: 7 }, (_, i) => ({
                 name: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
@@ -65,16 +65,21 @@ function DashboardContent() {
 
         // Fill with Order Data
         orders.forEach(order => {
+            if (!order || !order.createdAt) return;
             const dateKey = new Date(order.createdAt).toISOString().split('T')[0];
             if (dataMap.has(dateKey) && order.status !== 'cancelled') {
                 const day = dataMap.get(dateKey);
-                day.sales += order.totalAmount;
+                day.sales += (order.totalAmount || 0);
                 day.orders += 1;
 
                 // Track top products
-                order.items.forEach((item: any) => {
-                    day.products[item.name] = (day.products[item.name] || 0) + item.qty;
-                });
+                if (Array.isArray(order.items)) {
+                    order.items.forEach((item: any) => {
+                        if (item?.name) {
+                            day.products[item.name] = (day.products[item.name] || 0) + (item.qty || 0);
+                        }
+                    });
+                }
             }
         });
 
@@ -107,7 +112,7 @@ function DashboardContent() {
         const previousTotal = total * 0.9; // Assume 10% growth for visual if data exists
 
         const isUp = total >= previousTotal;
-        const peakDay = chartData.reduce((prev, current) => (prev.sales > current.sales) ? prev : current, chartData[0]);
+        const peakDay = chartData.length > 0 ? chartData.reduce((prev, current) => (prev.sales > current.sales) ? prev : current, chartData[0]) : { name: '-', sales: 0, orders: 0, topProduct: '-' };
 
         return {
             isUp,
@@ -120,13 +125,13 @@ function DashboardContent() {
     const trendInfo = calculateTrend();
 
     // 3. Low Stock Logic
-    const lowStockItems = inventory.flatMap(p =>
-        p.variants.filter(v => v.stock <= 5).map(v => ({
+    const lowStockItems = Array.isArray(inventory) ? inventory.flatMap(p =>
+        (p.variants || []).filter(v => (v.stock || 0) <= 5).map(v => ({
             name: `${p.name} (${v.size})`,
-            stock: v.stock,
+            stock: v.stock || 0,
             id: p._id
         }))
-    ).slice(0, 3); // Take top 3
+    ).slice(0, 3) : []; // Take top 3
 
     const lowStockCount = lowStockItems.length;
 

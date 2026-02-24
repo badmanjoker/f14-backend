@@ -251,7 +251,7 @@ export default function SupplyPage() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-4">
-                            {products.map((product) => (
+                            {Array.isArray(products) && products.filter(p => p !== null && p !== undefined).map((product) => (
                                 <div key={product._id} className="group bg-zinc-950 border border-zinc-900 p-4 transition-all hover:border-zinc-700 flex flex-col md:flex-row gap-6 relative overflow-hidden">
                                     <div className="w-full md:w-32 h-32 relative bg-black flex-shrink-0 overflow-hidden">
                                         <img src={formatImgUrl(product.image)} alt={product.name} className="absolute inset-0 w-full h-full object-contain p-2" />
@@ -280,10 +280,10 @@ export default function SupplyPage() {
                                             <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider line-clamp-2 mb-4">{product.description}</p>
                                         </div>
                                         <div className="flex gap-2">
-                                            {product.variants && product.variants.map(v => (
-                                                <div key={v.size} className="text-[9px] font-mono bg-zinc-900 border border-zinc-800 px-2 py-1 flex flex-col items-center">
-                                                    <span className="text-zinc-500">{v.size}</span>
-                                                    <span className={v.stock > 0 ? 'text-white' : 'text-red-500'}>{v.stock}</span>
+                                            {Array.isArray(product.variants) && product.variants.map((v, vIdx) => (
+                                                <div key={vIdx} className="text-[9px] font-mono bg-zinc-900 border border-zinc-800 px-2 py-1 flex flex-col items-center">
+                                                    <span className="text-zinc-500">{v?.size || '-'}</span>
+                                                    <span className={(v?.stock || 0) > 0 ? 'text-white' : 'text-red-500'}>{v?.stock || 0}</span>
                                                 </div>
                                             ))}
                                         </div>
