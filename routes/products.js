@@ -88,7 +88,7 @@ router.post('/', protect, async (req, res) => {
         res.status(201).json(newProduct);
     } catch (err) {
         console.error("❌ Product Create Error:", err);
-        res.status(500).json({ error: 'Failed to create product' });
+        res.status(500).json({ error: `Failed to create product: ${err.message}` });
     }
 });
 
@@ -119,7 +119,7 @@ router.put('/:id', protect, async (req, res) => {
         res.json(product);
     } catch (err) {
         console.error("❌ Product Update Error:", err);
-        res.status(500).json({ error: 'Failed to update product' });
+        res.status(500).json({ error: `Failed to update product: ${err.message}` });
     }
 });
 
