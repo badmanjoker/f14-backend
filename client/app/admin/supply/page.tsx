@@ -62,6 +62,7 @@ export default function SupplyPage() {
     const fetchProducts = async () => {
         try {
             const res = await fetch(`${API_URL}/api/products`);
+            const data = await res.json();
             setProducts(Array.isArray(data) ? data : []);
             setLoading(false);
         } catch (err) {
